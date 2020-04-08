@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'nav.dart';
 import 'decks.dart';
+import 'package:tcgenius/scry.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 void main() => runApp(MyApp());
 
@@ -12,7 +16,7 @@ class MyApp extends StatelessWidget {
       title: 'TCGenius',
       initialRoute: "/",
       routes: {
-        "/": (context) => HomePage(),
+        "/": (context) => HomePage("TCGenius"),
         "/decks": (context) => DeckPage(),
       },
       theme: ThemeData(
@@ -24,6 +28,12 @@ class MyApp extends StatelessWidget {
 
 class HomePage extends StatelessWidget {
 
+  final String title;
+  final Data data = new Data();
+
+  HomePage(this.title);
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: NavDrawer(),
