@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:tcgenius/scry.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 void main() => runApp(MyApp());
 
@@ -46,6 +50,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
+  Data data = new Data();
+
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -92,20 +98,22 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'You have pushed the button this many times:',
+              'Press this button to get the data:',
             ),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.display1,
             ),
+
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
+        onPressed:  data.getData,
+        tooltip: 'GetData',
         child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+
 }
