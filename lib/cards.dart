@@ -5,10 +5,22 @@ class MTGCard {
   String _type;
   String _textBox;  // card flavor text / abilities
   String _set;      // which set this card comes from
+  String _manaString;
   MTGManaType _manaCost;
 
   int getManaTotal() {
     return _manaCost.getSum();
+  }
+
+  MTGCard.fromMap(Map<String, String> info) {
+    _name = info["name"];
+    _textBox = info["oracle_text"];
+    _set = info["set_name"];
+    _manaString = info["mana_cost"];
+  }
+
+  String getName() {
+    return _name;
   }
 
 }

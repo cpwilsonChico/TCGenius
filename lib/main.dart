@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'nav.dart';
 import 'decks.dart';
 import 'package:tcgenius/scry.dart';
-import 'dart:async';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'cardSearch.dart';
+//import 'dart:async';
+//import 'dart:convert';
+//import 'package:http/http.dart' as http;
 
 void main() => runApp(MyApp());
 
@@ -41,7 +42,7 @@ class HomePage extends StatelessWidget {
         title: Text("TCGenius"),
       ),
       body: Center(
-        child: Text("Placeholder")
+        child: CardSearch(),
       )
     );
   }
