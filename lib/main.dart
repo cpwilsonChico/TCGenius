@@ -37,6 +37,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomPadding: true,
       drawer: NavDrawer(),
       appBar: AppBar(
         title: Text("TCGenius"),
