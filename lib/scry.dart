@@ -5,6 +5,8 @@ import 'cards.dart';
 
 class Data{
   Future<List<MTGCard>> getCardsByName(String cardName) async{
+    print("API");
+    print("cardname: $cardName");
     http.Response responce = await http.get(
         Uri.encodeFull("https://api.scryfall.com/cards/search?order=name&q=$cardName"),
         headers: {
@@ -24,6 +26,7 @@ class Data{
       cards.add(MTGCard.fromMap(cardInfo));
     }
 
+    print("API FINISH");
     return cards;
   }
 }
