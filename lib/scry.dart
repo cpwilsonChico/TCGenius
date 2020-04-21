@@ -4,11 +4,23 @@ import 'package:http/http.dart' as http;
 import 'cards.dart';
 
 class Data{
-  Future<List<MTGCard>> getCardsByName(String cardName) async{
+  Future<List<MTGCard>> getCardsByName(String cardName, {String cardSuperType = "", String cardSubType = ""}) async{
     print("API");
     print("cardname: $cardName");
+    String uri = "https://api.scryfall.com/cards/search?order=name&q=$cardName";
+    cardSuperType = cardSuperType.toLowerCase();
+    cardSubType = cardSubType.toLowerCase();
+    if (cardSuperType != "") {
+      uri += "+t=$cardSuperType";
+    }
+    if (cardSubType != "") {
+      uri += "+t=$cardSubType";
+    }
+    print("URI: $uri");
+
     http.Response responce = await http.get(
-        Uri.encodeFull("https://api.scryfall.com/cards/search?order=name&q=$cardName"),
+        //Uri.encodeFull("https://api.scryfall.com/cards/search?order=name&q=$cardName"),
+        Uri.encodeFull(uri),
         headers: {
           "Accept": "application/json"
         }
@@ -27,6 +39,7 @@ class Data{
     }
 
     print("API FINISH");
+    print("# CARDS RETURNED: ${cards.length}");
     return cards;
   }
 }

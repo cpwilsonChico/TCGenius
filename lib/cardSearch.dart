@@ -20,9 +20,9 @@ class SearchState extends State<CardSearch> {
     //futureCards = data.getCardsByName("Cat");
   }
 
-  void searchCallback(String term) {
+  void searchCallback(String name, String superType, String subType) {
     print("SEARCH CALLBACK");
-    futureCards = data.getCardsByName(term);
+    futureCards = data.getCardsByName(name, cardSuperType: superType, cardSubType: subType);
     setState((){});
   }
 
@@ -92,43 +92,93 @@ class CardSearchBar extends StatefulWidget {
 }
 
 class CardSearchBarState extends State<CardSearchBar> {
-  String currentInput = "";
+  String currentName = "";
+  String superType = "";
+  String subType = "";
   Function callback;
 
   CardSearchBarState(this.callback);
+
+  void setSuper(String newSuper) {
+    superType = newSuper;
+    setState((){});
+  }
+  void setSub(String newSub) {
+    subType = newSub;
+    setState((){});
+  }
 
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(8.0),
       //margin: EdgeInsets.all(8.0),
-      child: Row(
+      child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget> [
-            SizedBox(
-              height: 80,
-              width: MediaQuery.of(context).size.width * 0.6,
-              child: TextField(
-                  decoration: InputDecoration(
-                    labelText: "Card Name",
-                    border: OutlineInputBorder(),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                SizedBox(
+                  height: 80,
+                  width: MediaQuery.of(context).size.width * 0.6,
+                  child: TextField(
+                      decoration: InputDecoration(
+                        labelText: "Card Name",
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (String value) {
+                        currentName = value;
+                        setState((){});
+                      }
                   ),
-                  onChanged: (String value) {
-                    currentInput = value;
-                    setState((){});
-                  }
-              ),
+                ),
+
+                FlatButton(
+                    child: Icon(Icons.search),
+                    onPressed: () {
+                      callback(currentName, superType, subType);
+                    }
+                ),
+              ]
             ),
 
-
-            FlatButton(
-                child: Icon(Icons.search),
-                onPressed: () {
-                  callback(currentInput);
-                }
-            ),
+            CardTypeBar("Card Supertype", setSuper),
+            CardTypeBar("Card Subtype", setSub),
 
           ]
       )
     );
   }
+}
+
+class CardTypeBar extends StatefulWidget {
+  final String displayText;
+  final Function callback;
+  CardTypeBar(this.displayText, this.callback);
+  State<CardTypeBar> createState() => CardTypeBarState(displayText, callback);
+}
+
+class CardTypeBarState extends State<CardTypeBar> {
+  String currentInput = "";
+  String displayText = "";
+  Function setParentState;
+
+  CardTypeBarState(this.displayText, this.setParentState);
+
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 80,
+      width: MediaQuery.of(context).size.width * 0.6,
+      child: TextField(
+          decoration: InputDecoration(
+            labelText: "$displayText",
+            border: OutlineInputBorder(),
+          ),
+          onChanged: (String value) {
+            setParentState(value);
+          }
+      ),
+    );
+  }
+
 }
