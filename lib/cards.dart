@@ -17,10 +17,24 @@ class MTGCard {
     _textBox = info["oracle_text"];
     _set = info["set_name"];
     _manaString = info["mana_cost"];
+    _type = info["type_line"];
+    _set = info["set_name"];
   }
 
   String getName() {
     return _name;
+  }
+
+  String getOracleText(){
+    return _textBox;
+  }
+
+  String getType(){
+    return _type;
+  }
+
+  String getSet(){
+    return _set;
   }
 
 }

@@ -51,6 +51,7 @@ class CardListDisplay extends StatelessWidget {
 
             return Flexible(
               child: ListView.builder(
+                  padding: const EdgeInsets.all(8),
                   itemCount: cards.length,
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
@@ -77,9 +78,41 @@ class CardListItem extends StatelessWidget {
   CardListItem(this.card);
 
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
-      child: Text(card.getName()),
+//    return Container(
+//      height: 50,
+//      padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
+//      child: Text(card.getName()),
+//    );
+    return Card(
+        child: ListTile(
+            title: Text(card.getName()
+            ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+
+                Text(
+                  card.getType() ?? 'Something went wrong try again later'
+                ),
+                //Text(' '),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment:  MainAxisAlignment.end,
+                  children: <Widget>[
+                    Text(
+                      card.getSet() ?? 'Something went wrong try again later'
+                    ),
+                  ],
+                ),
+                Text(
+                    card.getOracleText() ?? 'Something went wrong try again later'
+                ),
+
+              ],
+              //card.getOracleText() ?? 'Something went wrong try again later'
+          )
+        )
     );
   }
 }
