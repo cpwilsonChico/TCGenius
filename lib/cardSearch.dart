@@ -93,7 +93,7 @@ class CardListItem extends StatelessWidget {
               children: <Widget>[
 
                 Text(
-                  card.getType() ?? 'Something went wrong try again later'
+                  card.getSuperType() ?? 'Something went wrong try again later'
                 ),
                 //Text(' '),
                 Row(
