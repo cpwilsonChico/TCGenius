@@ -21,7 +21,18 @@ class DeckPageState extends State<DeckPage> {
     return Scaffold(
       drawer: NavDrawer(),
       appBar: AppBar(
-        title: Text("TCGenius"),
+        title: Text("Decks"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () => Navigator.push(
+                context, MaterialPageRoute(builder: (context) => DeckBuilderPage())),
+          ),
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () => print("settings tap"),
+          )
+        ]
       ),
       body: Container(
         child: FutureBuilder(

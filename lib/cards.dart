@@ -8,6 +8,7 @@ class MTGCard {
   String _set;      // which set this card comes from
   String _manaString;
   String _image_uris;
+  int count = 1;
   MTGManaType _manaCost;
 
   int getManaTotal() {
@@ -41,8 +42,13 @@ class MTGCard {
   String getImage(){
     return _image_uris;
   }
-  String getManaString(){
+  String getManaString() {
     return _manaString;
+  }
+
+  void addOne() => count++;
+  void subtractOne() {
+    if (count > 1) count--;
   }
 
 }
@@ -69,10 +75,13 @@ class Deck {
   List<MTGCard> _cards;
   int deckSizeLimit = 999;
   String deckName;
-  String setType = "";
+  String format = "";
 
 
-  Deck(this.deckName, this._cards, {this.deckSizeLimit, this.setType});
+  Deck(this.deckName, this._cards, {this.deckSizeLimit, this.format});
+  Deck.empty({this.deckSizeLimit, this.format}) {
+    _cards = new List<MTGCard>();
+  }
 
   int getDeckSize() {
     if (_cards == null) return 0;
@@ -87,6 +96,10 @@ class Deck {
 
   bool removeCard(MTGCard remCard) {
     return _cards.remove(remCard);
+  }
+
+  void clear() {
+    _cards.clear();
   }
 
   Map<String, List<MTGCard>> getAllCardsBySuperType() {
