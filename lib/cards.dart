@@ -8,20 +8,30 @@ class MTGCard {
   String _set;      // which set this card comes from
   String _manaString;
   String _image_uris;
-  int count = 1;
+  int qty = 1;
   MTGManaType _manaCost;
 
   int getManaTotal() {
     return _manaCost.getSum();
   }
 
-  MTGCard.fromMap(Map<String, String> info) {
-    _name = info["name"];
-    _textBox = info["oracle_text"];
-    _set = info["set_name"];
-    _manaString = info["mana_cost"];
-    _supertype = info["type_line"];
-    _image_uris = info["image_uris"];
+  MTGCard.fromMap(var info) {
+    try {
+      _name = info["name"];
+      _textBox = info["oracle_text"];
+      _set = info["set_name"];
+      _manaString = info["mana_cost"];
+      _supertype = info["type_line"];
+      // firebase contains these, Scryfall does not
+      if (info.containsKey("qty")) {
+        qty = info["qty"];
+      }
+      if (info.containsKey["image_uris"]) {
+        _image_uris = info["image_uris"];
+      }
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   String getName() {
@@ -46,9 +56,9 @@ class MTGCard {
     return _manaString;
   }
 
-  void addOne() => count++;
+  void addOne() => qty++;
   void subtractOne() {
-    if (count > 1) count--;
+    if (qty > 1) qty--;
   }
 
 }
@@ -81,6 +91,7 @@ class Deck {
   Deck(this.deckName, this._cards, {this.deckSizeLimit, this.format});
   Deck.empty({this.deckSizeLimit, this.format}) {
     _cards = new List<MTGCard>();
+    deckName = "New Deck";
   }
 
   int getDeckSize() {

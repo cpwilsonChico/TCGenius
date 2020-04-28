@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'cards.dart';
 import 'nav.dart';
 
+/*
+// widget for viewing a single deck
 class DeckViewPage extends StatefulWidget {
   final Deck deck;
   DeckViewPage(this.deck);
@@ -15,8 +17,10 @@ class DeckPageState extends State<DeckViewPage> {
   Widget build(BuildContext context) {
     return Text("hi");
   }
-}
+}*/
 
+/*
+// widget for viewing a single deck
 class DeckView extends StatelessWidget {
   final Deck deck;
   DeckView(this.deck);
@@ -26,26 +30,30 @@ class DeckView extends StatelessWidget {
       child: Text("${deck.deckName}"),
     );
   }
+}*/
+
+// widget for viewing / editing a deck
+class DeckView extends StatefulWidget {
+  final Deck deck;
+  DeckView({this.deck});
+  State<DeckView> createState() => DeckViewState(deck: deck);
 }
 
-class DeckBuilderPage extends StatefulWidget {
-  State<DeckBuilderPage> createState() => DeckBuilderState();
-}
-
-class DeckBuilderState extends State<DeckBuilderPage> {
+class DeckViewState extends State<DeckView> {
+  DeckViewState({this.deck});
   Deck deck;
 
   @override
   void initState() {
     super.initState();
-    deck = new Deck.empty();
+    if (deck == null) deck = new Deck.empty();
   }
 
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: NavDrawer(),
       appBar: AppBar(
-        title: Text("Deck Builder"),
+        title: Text("${deck.deckName}"),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.cancel),
