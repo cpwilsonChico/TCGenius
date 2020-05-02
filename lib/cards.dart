@@ -7,6 +7,7 @@ class MTGCard {
   String _textBox;  // card flavor text / abilities
   String _set;      // which set this card comes from
   String _manaString;
+  String _image_uris;
   MTGManaType _manaCost;
 
   int getManaTotal() {
@@ -19,6 +20,7 @@ class MTGCard {
     _set = info["set_name"];
     _manaString = info["mana_cost"];
     _supertype = info["type_line"];
+    _image_uris = info["image_uris"];
   }
 
   String getName() {
@@ -34,6 +36,13 @@ class MTGCard {
 
   String getSet(){
     return _set;
+  }
+
+  String getImage(){
+    return _image_uris;
+  }
+  String getManaString(){
+    return _manaString;
   }
 
 }

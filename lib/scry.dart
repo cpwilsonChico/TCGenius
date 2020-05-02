@@ -36,6 +36,7 @@ class Data{
       cardInfo["oracle_text"] = map['oracle_text'];
       cardInfo["set_name"] = map['set_name'];
       cardInfo["type_line"] = map['type_line'];
+      cardInfo["image_uris"] = map["image_uris"]["normal"];
       cards.add(MTGCard.fromMap(cardInfo));
     }
 
