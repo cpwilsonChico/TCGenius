@@ -85,13 +85,55 @@ class CardListItem extends StatelessWidget {
 //    );
     return Card(
         child: ListTile(
-            title: Text(card.getName()
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+              Text(card.getName()),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment:  MainAxisAlignment.end,
+                  children: <Widget>[
+                    Text(card.getManaString()),
+                  ],
+                ),
+              ],
             ),
+
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
+                ButtonBar(
+                  children: <Widget>[
+                    FlatButton(
+                      onPressed: (){
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context){
+                            return AlertDialog(
+                              content: Row(
+                                children: <Widget>[
+                                  SizedBox(
+                                    width: 250,
+                                    height: 350,
+                                    child: Image.network(card.getImage()) ?? Text("Image Not Available"),
+                                  ),
+                                  //Image.network(card.getImage()) ?? Text("Image Not Available"),
+      //                           Text("Poop"),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: Text(
+                        "Card Image"
+                      ),
+                    )
 
+                  ],
+                ),
                 Text(
                   card.getSuperType() ?? 'Something went wrong try again later'
                 ),
