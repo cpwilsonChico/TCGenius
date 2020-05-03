@@ -2,20 +2,24 @@ import 'package:flutter/material.dart';
 import 'cards.dart';
 import 'nav.dart';
 import 'scry.dart';
+import 'storage.dart';
 
 // widget for viewing / editing a deck
 class DeckBuilder extends StatefulWidget {
   final Deck deck;
-  DeckBuilder({this.deck});
-  State<DeckBuilder> createState() => DeckBuilderState(deck: deck);
+  final bool isNew;
+  final Function refreshParent;    // callback to refresh view of deck list
+  DeckBuilder({this.deck, this.isNew, this.refreshParent});
+  State<DeckBuilder> createState() => DeckBuilderState(deck: deck, isNew: isNew, refreshParent: refreshParent);
 }
 
 class DeckBuilderState extends State<DeckBuilder> {
-  DeckBuilderState({this.deck});
+  DeckBuilderState({this.deck, this.isNew, this.refreshParent});
   Deck deck;
   int newCardQty;
-  String newDeckName;
   String newCardName;
+  bool isNew;
+  final Function refreshParent;   // callback to refresh view of deck list
 
   @override
   void initState() {
@@ -24,11 +28,13 @@ class DeckBuilderState extends State<DeckBuilder> {
   }
 
   Widget build(BuildContext context) {
+    String titleText = isNew ? "New Deck" : deck.deckName;
+
     return Scaffold(
       drawer: NavDrawer(),
       resizeToAvoidBottomPadding: false,
       appBar: AppBar(
-        title: Text("${deck.deckName}"),
+        title: Text("$titleText"),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.cancel),
@@ -38,10 +44,7 @@ class DeckBuilderState extends State<DeckBuilder> {
           ),
           IconButton(
             icon: Icon(Icons.save),
-            onPressed: () {
-              // TODO implement
-              print("Saved.");
-            }
+            onPressed: saveDeck,
           )
         ]
       ),
@@ -49,13 +52,54 @@ class DeckBuilderState extends State<DeckBuilder> {
         //mainAxisSize: MainAxisSize.min,
         shrinkWrap: true,
         children: <Widget>[
-          DeckInfoWidget(setDeckName),
+          DeckInfoWidget(setDeckName, isNew, deckName: deck.deckName),
           CardInput(setNewQty, setName, addCard),
           DeckView(deck, deleteCard, triggerState),
         ]
       )
     );
   }
+
+  void saveDeck() async {
+    if (deck.deckName == null ? true : deck.deckName.length < 1) {
+      showDeckErrorDialog("Please give this deck a name.");
+      return;
+    }
+    if (deck.getDeckSize() < 1) {
+      showDeckErrorDialog("This deck is empty. Add some cards!");
+      return;
+    }
+
+    String resultMsg = await FirebaseDB.instance.saveDeck(deck);
+
+    if (resultMsg == null) {
+      showDeckErrorDialog("Failed to save deck.");
+    } else if (resultMsg != "") {
+      showDeckErrorDialog(resultMsg);
+    } else {
+      refreshParent();
+      Navigator.pop(context);
+    }
+  }
+
+  void showDeckErrorDialog(String msg) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              title: Text("Deck Error"),
+              content: Text("$msg"),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("OK"),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ]
+          );
+        }
+    );
+  }
+
 
   void showCancelDialog(BuildContext context) {
     showDialog(
@@ -100,7 +144,7 @@ class DeckBuilderState extends State<DeckBuilder> {
 
   // callback, passed to DeckInfoWidget
   void setDeckName(String newName) {
-    newDeckName = newName;
+    deck.deckName = newName;
     setState((){});
   }
 
@@ -357,10 +401,13 @@ class CardCategory extends StatelessWidget {
   }
 }
 
-
+// displays deck name and price
+// allows changing deck name if this deck is new
 class DeckInfoWidget extends StatelessWidget {
   final Function setDeckName;    // callback to set deck name from text input
-  DeckInfoWidget(this.setDeckName);
+  final bool isNew;
+  final String deckName;
+  DeckInfoWidget(this.setDeckName, this.isNew, {this.deckName});
 
   @override
   Widget build(BuildContext context) {
@@ -379,15 +426,22 @@ class DeckInfoWidget extends StatelessWidget {
         children: <Widget>[
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.75,
-            child: TextField(
-              decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
-                labelText: "Deck Name",
+            child: Visibility(
+              visible: isNew,
+              child: TextField(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
+                  labelText: "Deck Name",
+                ),
+                maxLength: 32,
+                onChanged: (String newVal) {
+                  setDeckName(newVal);
+                },
               ),
-              maxLength: 32,
-              onChanged: (String newVal) {
-                setDeckName(newVal);
-              },
+              replacement: Text(
+                deckName == null ? "" : deckName,
+                style: TextStyle(fontSize: 18),
+              ),
             ),
           ),
 
