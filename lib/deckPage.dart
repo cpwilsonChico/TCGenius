@@ -30,7 +30,8 @@ class DeckPageState extends State<DeckPage> {
             icon: Icon(Icons.add),
             onPressed: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => DeckBuilder(deck: Deck.empty()))),
+                MaterialPageRoute(builder: (context) =>
+                    DeckBuilder(deck: Deck.empty(), isNew: true, refreshParent: refresh,))),
           ),
           IconButton(
             icon: Icon(Icons.settings),
@@ -59,7 +60,7 @@ class DeckPageState extends State<DeckPage> {
                 child: ListView.builder(
                     itemCount: decks.length,
                     itemBuilder: (BuildContext contxt, int index) {
-                      return DeckTile(decks[index]);
+                      return DeckTile(decks[index], refresh);
                     }
                 )
               );
@@ -81,19 +82,26 @@ class DeckPageState extends State<DeckPage> {
   Future<List<Deck>> getDecks() async {
     return await FirebaseDB.instance.getDecks();
   }
+
+  // callback passed to DeckBuilder
+  void refresh() async {
+    deckFuture = getDecks();
+    setState((){});
+  }
 }
 
 class DeckTile extends StatelessWidget {
   final Deck deck;
+  final Function refresh;   // callback passed from DeckPage to DeckBuilder
 
-  DeckTile(this.deck);
+  DeckTile(this.deck, this.refresh);
 
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
         onTap: () {
           Navigator.push(context, MaterialPageRoute(
-            builder: (context) => DeckBuilder(deck: deck)
+            builder: (context) => DeckBuilder(deck: deck, isNew: false, refreshParent: refresh)
           ));
         },
         title: Text(deck.deckName),

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 // holds data associated with a Magic the Gathering card
 class MTGCard {
   String _imgPath;  // local directory or firebase uri
@@ -34,6 +36,18 @@ class MTGCard {
     } catch (e) {
       print("Error when creating MTGCard from map: ${e.toString()}");
     }
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': _name,
+      'oracle_text': _textBox,
+      'set_name': _set,
+      'mana_cost': _manaString,
+      'type_line': _supertype,
+      //'subtype': _subtype,
+      'qty': qty,
+    };
   }
 
   int getQty() {
@@ -100,9 +114,38 @@ class Deck {
   }
   Deck.empty({this.deckSizeLimit, this.format}) {
     _cards = new List<MTGCard>();
-    deckName = "New Deck";
     _nameToIndex = new Map<String, int>();
   }
+
+  Map<String, dynamic> toMap() {
+    List<Map<String, dynamic>> cardsToMap = List<Map<String,dynamic>>();
+    for (MTGCard card in _cards) {
+      cardsToMap.add(card.toMap());
+    }
+    return {
+      'name': deckName,
+      'format': format,
+      'cards': cardsToMap,
+    };
+  }
+
+  Deck.fromMap(Map<String, dynamic> map) {
+    deckName = map['name'];
+    format = map['format'];
+    List<MTGCard> cards = new List<MTGCard>();
+    List<dynamic> cardMaps = map['cards'];
+    for (dynamic cardMap in cardMaps) {
+      cards.add(MTGCard.fromMap(cardMap));
+    }
+    _cards = cards;
+    //print("DECK CONSTRUCTOR: ${map['cards'].runtypeType}");
+    //List<Map<String, dynamic>> cardMaps = json.decode(map['cards']);
+    //print("DECK CONSTRUCTOR: ${cardMaps}");
+    //for (Map<String, dynamic> cardMap in cardMaps) {
+      //cards.add(MTGCard.fromMap(cardMap));
+    //}
+  }
+
 
   List<MTGCard> get list {
     return _cards;
@@ -169,6 +212,4 @@ class Deck {
 
     return map;
   }
-
-
 }
