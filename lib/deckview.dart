@@ -14,11 +14,15 @@ class DeckBuilder extends StatefulWidget {
 }
 
 class DeckBuilderState extends State<DeckBuilder> {
-  DeckBuilderState({this.deck, this.isNew, this.refreshParent});
+  DeckBuilderState({this.deck, this.isNew=false, this.refreshParent}) {
+    dirty = isNew;
+  }
+
   Deck deck;
   int newCardQty;
   String newCardName;
   bool isNew;
+  bool dirty;
   final Function refreshParent;   // callback to refresh view of deck list
 
   @override
@@ -30,37 +34,67 @@ class DeckBuilderState extends State<DeckBuilder> {
   Widget build(BuildContext context) {
     String titleText = isNew ? "New Deck" : deck.deckName;
 
-    return Scaffold(
-      drawer: NavDrawer(),
-      resizeToAvoidBottomPadding: false,
-      appBar: AppBar(
-        title: Text("$titleText"),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.cancel),
-            onPressed: () {
-              showCancelDialog(context);
-            }
+    return WillPopScope(
+      onWillPop: () async { return await confirmDiscard(context);},
+      child: Scaffold(
+          drawer: NavDrawer(),
+          resizeToAvoidBottomPadding: false,
+          appBar: AppBar(
+              title: Text("$titleText"),
+              actions: <Widget>[
+                IconButton(
+                    icon: Icon(Icons.cancel),
+                    onPressed: () {
+                      showCancelDialog(context);
+                    }
+                ),
+                SaveIcon(saveDeck),
+              ]
           ),
-          IconButton(
-            icon: Icon(Icons.save),
-            onPressed: saveDeck,
+          body: ListView(
+            //mainAxisSize: MainAxisSize.min,
+              shrinkWrap: true,
+              children: <Widget>[
+                DeckInfoWidget(setDeckName, isNew, deckName: deck.deckName),
+                CardInput(setNewQty, setName, addCard),
+                DeckView(deck, deleteCard, triggerState),
+              ]
           )
-        ]
       ),
-      body: ListView(
-        //mainAxisSize: MainAxisSize.min,
-        shrinkWrap: true,
-        children: <Widget>[
-          DeckInfoWidget(setDeckName, isNew, deckName: deck.deckName),
-          CardInput(setNewQty, setName, addCard),
-          DeckView(deck, deleteCard, triggerState),
-        ]
-      )
     );
   }
 
-  void saveDeck() async {
+  Future<bool> confirmDiscard(BuildContext context) async {
+    // if there are no changes, dont prompt
+    if (!dirty) {
+      return true;
+    }
+    return await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+              title: Text("Changes not saved"),
+              content: Text("Are you sure you want to discard your changes?"),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("GO BACK"),
+                  onPressed: () => Navigator.pop(context, false),
+                ),
+                FlatButton(
+                  child: Text("DISCARD", style: TextStyle(color: Colors.red)),
+                  onPressed: () {
+                    Navigator.pop(context, true);
+                  }
+                )
+              ]
+          );
+        }
+    );
+  }
+
+
+  void saveDeck(BuildContext context) async {
     if (deck.deckName == null ? true : deck.deckName.length < 1) {
       showDeckErrorDialog("Please give this deck a name.");
       return;
@@ -78,7 +112,13 @@ class DeckBuilderState extends State<DeckBuilder> {
       showDeckErrorDialog(resultMsg);
     } else {
       refreshParent();
-      Navigator.pop(context);
+      SnackBar snack = SnackBar(
+        content: Text("Deck saved!", style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.lightBlue,
+        duration: Duration(seconds: 2),
+      );
+      Scaffold.of(context).showSnackBar(snack);
+      dirty = false;
     }
   }
 
@@ -133,23 +173,27 @@ class DeckBuilderState extends State<DeckBuilder> {
     if (newCardQty == null) newCardQty = 1;
     if (newCardQty < 1) newCardQty = 1;
     if (newCardQty > 9) newCardQty = 9;
+    dirty = true;
     setState((){});
   }
 
   // callback, passed to CardInput
   void setName(String newName) {
     newCardName = newName;
+    dirty = true;
     setState((){});
   }
 
   // callback, passed to DeckInfoWidget
   void setDeckName(String newName) {
     deck.deckName = newName;
+    dirty = true;
     setState((){});
   }
 
   // callback, passed to CardInput
   Future<void> addCard() async {
+    if (newCardName == null) return;
     Data api = Data();
     MTGCard card = await api.getCardFuzzy(newCardName);
     if (card == null) {
@@ -159,6 +203,7 @@ class DeckBuilderState extends State<DeckBuilder> {
     if (newCardQty == null) newCardQty = 1;
     card.qty = newCardQty;
     deck.addCard(card);
+    dirty = true;
     setState((){});
   }
 
@@ -167,11 +212,13 @@ class DeckBuilderState extends State<DeckBuilder> {
     bool shouldDelete = await showDeleteDialog(card.getName());
     if (shouldDelete == null ? true : !shouldDelete) return;
     deck.removeCard(card);
+    dirty = true;
     setState((){});
   }
 
   // callback, passed down to CardWidgets
   void triggerState() {
+    dirty = true;
     setState((){});
   }
 
@@ -210,6 +257,20 @@ class DeckBuilderState extends State<DeckBuilder> {
               ]
           );
         }
+    );
+  }
+}
+
+// helper class so that Scaffold.of() can be used (error if embedded into DeckBuilder)
+class SaveIcon extends StatelessWidget {
+  final Function saveDeck;    // callback from DeckBuilder
+  SaveIcon(this.saveDeck);
+
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.save),
+      onPressed: () =>
+          saveDeck(context),
     );
   }
 }

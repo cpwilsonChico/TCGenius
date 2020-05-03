@@ -30,12 +30,21 @@ class MTGCard {
       if (info.containsKey("qty")) {
         qty = info["qty"];
       }
-      if (info.containsKey["image_uris"]) {
+      if (info.containsKey("image_uris")) {
         _image_uris = info["image_uris"];
       }
     } catch (e) {
       print("Error when creating MTGCard from map: ${e.toString()}");
     }
+  }
+
+  MTGCard.copy(MTGCard other) {
+    _name = other.getName();
+    _textBox = other._textBox;
+    _set = other.getSet();
+    _manaString = other._manaString;
+    _supertype = other._supertype;
+    qty = other.qty;
   }
 
   Map<String, dynamic> toMap() {
@@ -138,12 +147,22 @@ class Deck {
       cards.add(MTGCard.fromMap(cardMap));
     }
     _cards = cards;
-    //print("DECK CONSTRUCTOR: ${map['cards'].runtypeType}");
-    //List<Map<String, dynamic>> cardMaps = json.decode(map['cards']);
-    //print("DECK CONSTRUCTOR: ${cardMaps}");
-    //for (Map<String, dynamic> cardMap in cardMaps) {
-      //cards.add(MTGCard.fromMap(cardMap));
-    //}
+
+    _nameToIndex = new Map<String, int>();
+    for (int i = 0; i < _cards.length; i++) {
+      _nameToIndex[_cards[i].getName()] = i;
+    }
+  }
+
+  Deck.copy(Deck other) {
+    deckSizeLimit = other.deckSizeLimit;
+    deckName = other.deckName;
+    format = other.format;
+    _cards = new List<MTGCard>();
+    _nameToIndex = new Map<String, int>();
+    for (MTGCard card in other.list) {
+      _cards.add(MTGCard.copy(card));
+    }
   }
 
 

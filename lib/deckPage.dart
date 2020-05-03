@@ -101,7 +101,7 @@ class DeckTile extends StatelessWidget {
       child: ListTile(
         onTap: () {
           Navigator.push(context, MaterialPageRoute(
-            builder: (context) => DeckBuilder(deck: deck, isNew: false, refreshParent: refresh)
+            builder: (context) => DeckBuilder(deck: Deck.copy(deck), isNew: false, refreshParent: refresh)
           ));
         },
         title: Text(deck.deckName),
