@@ -10,6 +10,8 @@ class MTGCard {
   String _image_uris;
   int qty = 1;
   MTGManaType _manaCost;
+  int _dollarCost;
+  int _centCost;
 
   int getManaTotal() {
     return _manaCost.getSum();
@@ -30,8 +32,12 @@ class MTGCard {
         _image_uris = info["image_uris"];
       }
     } catch (e) {
-      print(e.toString());
+      print("Error when creating MTGCard from map: ${e.toString()}");
     }
+  }
+
+  int getQty() {
+    return qty;
   }
 
   String getName() {
@@ -86,31 +92,69 @@ class Deck {
   int deckSizeLimit = 999;
   String deckName;
   String format = "";
+  Map<String, int> _nameToIndex;
 
 
-  Deck(this.deckName, this._cards, {this.deckSizeLimit, this.format});
+  Deck(this.deckName, this._cards, {this.deckSizeLimit, this.format}) {
+    _nameToIndex = new Map<String, int>();
+  }
   Deck.empty({this.deckSizeLimit, this.format}) {
     _cards = new List<MTGCard>();
     deckName = "New Deck";
+    _nameToIndex = new Map<String, int>();
+  }
+
+  List<MTGCard> get list {
+    return _cards;
   }
 
   int getDeckSize() {
     if (_cards == null) return 0;
-    return _cards.length;
+    int sum = 0;
+    for (MTGCard card in _cards) {
+      sum += card.qty;
+    }
+    return sum;
   }
 
+  // inserts card at front, updates index map
   bool addCard(MTGCard newCard) {
     if (getDeckSize() == deckSizeLimit) return false;
-    _cards.add(newCard);
+
+    String name = newCard.getName();
+    if (_nameToIndex.containsKey(name)) {
+      int index = _nameToIndex[name];
+      _cards[index].qty += newCard.qty;
+    } else {
+      _cards.insert(0, newCard);
+      for (String id in _nameToIndex.keys) {
+        _nameToIndex[id]++;
+      }
+      _nameToIndex[name] = 0;
+    }
     return true;
   }
 
+  // removes card from list, updates index map
   bool removeCard(MTGCard remCard) {
-    return _cards.remove(remCard);
+    String name = remCard.getName();
+    if (!_nameToIndex.containsKey(name)) {
+      return false;
+    }
+    int index = _nameToIndex[name];
+    for (String id in _nameToIndex.keys) {
+      if (_nameToIndex[id] > index) {
+        _nameToIndex[id]--;
+      }
+    }
+    _nameToIndex.remove(name);
+    _cards.removeAt(index);
+    return true;
   }
 
   void clear() {
     _cards.clear();
+    _nameToIndex.clear();
   }
 
   Map<String, List<MTGCard>> getAllCardsBySuperType() {

@@ -44,4 +44,40 @@ class Data{
     print("# CARDS RETURNED: ${cards.length}");
     return cards;
   }
+
+  Future<MTGCard> getCardFuzzy(String name) async {
+    name = name.replaceAll(" ", "+");
+    String url = "https://api.scryfall.com/cards/named?fuzzy=$name";
+
+    http.Response responce;
+    try {
+      responce = await http.get(
+          Uri.encodeFull(url),
+          headers: {
+            "Accept": "application/json"
+          }
+      );
+    } catch (e) {
+      print("http error: ${e.toString()}");
+      return null;
+    }
+
+    var data;
+    Map<String, String> cardInfo = {};
+    try {
+      data = json.decode(responce.body);
+      if (data.containsKey("status")) {
+        return null;
+      }
+      cardInfo["name"] = data['name'];
+      cardInfo["mana_cost"] = data['mana_cost'];
+      cardInfo["oracle_text"] = data['oracle_text'];
+      cardInfo["set_name"] = data['set_name'];
+      cardInfo["type_line"] = data['type_line'];
+    } catch (e) {
+      print("json error: ${e.toString()}");
+      return null;
+    }
+    return MTGCard.fromMap(cardInfo);
+  }
 }

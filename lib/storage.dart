@@ -22,7 +22,8 @@ class FirebaseDB {
     print("getting decks");
     if (_uid == null) return List<Deck>(); // return empty deck
     CollectionReference colref = Firestore.instance.collection("decks");
-    Map<String, dynamic> data = (await colref.document("test").get()).data;
+    Map<String, dynamic> data = (await colref.document(_uid).get()).data;
+    if (data == null) return List<Deck>();
 
     List<Deck> deckList = new List<Deck>();
     for (var deckInfo in data["decks"]) {
