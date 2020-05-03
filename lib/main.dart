@@ -27,9 +27,10 @@ class MyApp extends StatelessWidget {
           //"/": (context) => HomePage("TCGenius"),
           "/decks": (context) => DeckPage(),
         },
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
+        theme: ThemeData.dark(),
+        //theme: ThemeData(
+         // primarySwatch: Colors.blue,
+        //),
       ),
     );
   }

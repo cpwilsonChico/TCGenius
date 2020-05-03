@@ -1,47 +1,21 @@
 import 'package:flutter/material.dart';
 import 'cards.dart';
 import 'nav.dart';
-
-/*
-// widget for viewing a single deck
-class DeckViewPage extends StatefulWidget {
-  final Deck deck;
-  DeckViewPage(this.deck);
-  State<DeckViewPage> createState() => DeckPageState(deck);
-}
-
-class DeckPageState extends State<DeckViewPage> {
-  Deck deck;
-  DeckPageState(this.deck);
-
-  Widget build(BuildContext context) {
-    return Text("hi");
-  }
-}*/
-
-/*
-// widget for viewing a single deck
-class DeckView extends StatelessWidget {
-  final Deck deck;
-  DeckView(this.deck);
-
-  Widget build(BuildContext context) {
-    return Container(
-      child: Text("${deck.deckName}"),
-    );
-  }
-}*/
+import 'scry.dart';
 
 // widget for viewing / editing a deck
-class DeckView extends StatefulWidget {
+class DeckBuilder extends StatefulWidget {
   final Deck deck;
-  DeckView({this.deck});
-  State<DeckView> createState() => DeckViewState(deck: deck);
+  DeckBuilder({this.deck});
+  State<DeckBuilder> createState() => DeckBuilderState(deck: deck);
 }
 
-class DeckViewState extends State<DeckView> {
-  DeckViewState({this.deck});
+class DeckBuilderState extends State<DeckBuilder> {
+  DeckBuilderState({this.deck});
   Deck deck;
+  int newCardQty;
+  String newDeckName;
+  String newCardName;
 
   @override
   void initState() {
@@ -52,6 +26,7 @@ class DeckViewState extends State<DeckView> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: NavDrawer(),
+      resizeToAvoidBottomPadding: false,
       appBar: AppBar(
         title: Text("${deck.deckName}"),
         actions: <Widget>[
@@ -70,10 +45,13 @@ class DeckViewState extends State<DeckView> {
           )
         ]
       ),
-      body: Column(
-        mainAxisSize: MainAxisSize.min,
+      body: ListView(
+        //mainAxisSize: MainAxisSize.min,
+        shrinkWrap: true,
         children: <Widget>[
-
+          DeckInfoWidget(setDeckName),
+          CardInput(setNewQty, setName, addCard),
+          DeckView(deck, deleteCard, triggerState),
         ]
       )
     );
@@ -104,4 +82,320 @@ class DeckViewState extends State<DeckView> {
       }
     );
   }
+
+  // callback, passed to CardInput
+  void setNewQty(int qty) {
+    newCardQty = qty;
+    if (newCardQty == null) newCardQty = 1;
+    if (newCardQty < 1) newCardQty = 1;
+    if (newCardQty > 9) newCardQty = 9;
+    setState((){});
+  }
+
+  // callback, passed to CardInput
+  void setName(String newName) {
+    newCardName = newName;
+    setState((){});
+  }
+
+  // callback, passed to DeckInfoWidget
+  void setDeckName(String newName) {
+    newDeckName = newName;
+    setState((){});
+  }
+
+  // callback, passed to CardInput
+  Future<void> addCard() async {
+    Data api = Data();
+    MTGCard card = await api.getCardFuzzy(newCardName);
+    if (card == null) {
+      showFailureDialog();
+      return;
+    }
+    if (newCardQty == null) newCardQty = 1;
+    card.qty = newCardQty;
+    deck.addCard(card);
+    setState((){});
+  }
+
+  // callback, passed down to CardWidgets
+  void deleteCard(MTGCard card) async {
+    bool shouldDelete = await showDeleteDialog(card.getName());
+    if (shouldDelete == null ? true : !shouldDelete) return;
+    deck.removeCard(card);
+    setState((){});
+  }
+
+  // callback, passed down to CardWidgets
+  void triggerState() {
+    setState((){});
+  }
+
+  Future<bool> showDeleteDialog(String cardName) async {
+    return await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              title: Text("Delete card '$cardName'?"),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("CANCEL"),
+                  onPressed: () => Navigator.pop(context, false),
+                ),
+                FlatButton(
+                  child: Text("OK"),
+                  onPressed: () => Navigator.pop(context, true),
+                ),
+              ]
+          );
+        }
+    );
+  }
+
+  void showFailureDialog() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              title: Text("Failed to add card '$newCardName'"),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("OK"),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ]
+          );
+        }
+    );
+  }
 }
+
+// shows the deck, split into categories
+class DeckView extends StatelessWidget {
+  final Deck deck;
+  final Function deleteCard;    // callback, passed down to CardCategory by DeckBuilderState
+  final Function triggerState;  // callback, passed down to CardCategory by DeckBuilderState
+  DeckView(this.deck, this.deleteCard, this.triggerState);
+
+  Widget build(BuildContext context) {
+    Map<String, List<MTGCard>> map = deck.getAllCardsBySuperType();
+    List<List<MTGCard>> lists = new List<List<MTGCard>>();
+    map.forEach((k,v) => lists.add(map[k]));
+
+    List<CardCategory> cardCats = new List<CardCategory>();
+    for (List<MTGCard> list in lists) {
+      cardCats.add(CardCategory(list, deleteCard, triggerState));
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: cardCats,
+    );
+  }
+}
+
+class CardInput extends StatelessWidget {
+  final Function setQty;  // callback for qty input
+  final Function setName; // callback for name input
+  final Function addCard; // callback for adding new card to deck
+
+  CardInput(this.setQty, this.setName, this.addCard);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.all(4.0),
+      padding: EdgeInsets.all(10.0),
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+        border: Border.all(width: 1),
+        borderRadius: BorderRadius.circular(12.0),
+        color: Color.fromARGB(255, 30, 30, 30),
+      ),
+      //height: 250,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          // quantity input field
+          SizedBox(
+            width: 80,
+            child: TextFormField(
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
+                  labelText: "Qty",
+                ),
+                initialValue: "1",
+                onChanged: (String newVal) {
+                  int qty = int.tryParse(newVal);
+                  setQty(qty);
+                }
+            ),
+          ),
+
+          // card name input field
+          SizedBox(
+            width: 180,
+            child: TextField(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
+                  labelText: "Card Name",
+                ),
+                onChanged: (String newVal) {
+                  setName(newVal);
+                }
+            ),
+          ),
+
+          Material(
+            color: Color.fromARGB(255, 30, 30, 30),
+            child: Center(
+              child: Ink(
+                  decoration: ShapeDecoration(
+                    shape: CircleBorder(),
+                    color: Colors.lightBlue,
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: addCard,
+                  )
+              ),
+            ),
+          )
+
+        ]
+      )
+    );
+  }
+}
+
+
+class CardWidget extends StatelessWidget {
+  final MTGCard card;
+  final Function deleteCard;    // callback to delete card
+  final Function triggerState;  // callback to trigger state update of deck builder
+  CardWidget(this.card, this.deleteCard, this.triggerState);
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpansionTile(
+      title: Text(card.getName()),
+      leading: Text("${card.getQty()}"),
+      children: <Widget>[
+        Text(card.getOracleText()),
+        ButtonBar(
+          children: <Widget>[
+            FlatButton(
+              child: Text("DELETE", style: TextStyle(color: Colors.red)),
+              onPressed: () => deleteCard(card),
+            ),
+            IconButton(
+              icon: Icon(Icons.remove),
+              onPressed: () {
+                card.subtractOne();
+                triggerState();
+              }
+            ),
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () {
+                card.addOne();
+                triggerState();
+              }
+            ),
+          ]
+        )
+      ]
+    );
+  }
+}
+
+class CardCategory extends StatelessWidget {
+  final List<MTGCard> list;
+  final Function deleteCard;    // callback, passed down from DeckView to CardWidget
+  final Function triggerState;  // callback, passed down from DeckView to CardWidget
+  CardCategory(this.list, this.deleteCard, this.triggerState);
+
+  @override
+  Widget build(BuildContext context) {
+    if (list == null ? true : list.length == 0) {
+      return SizedBox(height: 0);
+    }
+    int numCards = 0;
+    for (int i = 0; i < list.length; i++) {
+      numCards += list[i].getQty();
+    }
+
+    List<CardWidget> cardList = new List<CardWidget>();
+    for (MTGCard card in list) {
+      cardList.add(CardWidget(card, deleteCard, triggerState));
+    }
+
+    return Container(
+      padding: EdgeInsets.fromLTRB(6, 0, 0, 6),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Align(
+            alignment: Alignment.topLeft,
+            child: Text(
+              "$numCards   ${list[0].getSuperType()}",
+              style: TextStyle(fontSize: 18),
+            ),
+          ),
+          Flexible(
+            //fit: FlexFit.loose,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: cardList,
+            )
+          ),
+        ]
+      )
+    );
+  }
+}
+
+
+class DeckInfoWidget extends StatelessWidget {
+  final Function setDeckName;    // callback to set deck name from text input
+  DeckInfoWidget(this.setDeckName);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(4, 4, 4, 0),
+      padding: EdgeInsets.all(10),
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+        border: Border.all(width: 1),
+        borderRadius: BorderRadius.circular(12.0),
+        color: Color.fromARGB(255, 30, 30, 30),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.75,
+            child: TextField(
+              decoration: InputDecoration(
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
+                labelText: "Deck Name",
+              ),
+              maxLength: 32,
+              onChanged: (String newVal) {
+                setDeckName(newVal);
+              },
+            ),
+          ),
+
+          Text("\$45.99"),
+        ]
+      )
+    );
+  }
+}
+
+

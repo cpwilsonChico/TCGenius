@@ -30,7 +30,7 @@ class DeckPageState extends State<DeckPage> {
             icon: Icon(Icons.add),
             onPressed: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => DeckView(deck: Deck.empty()))),
+                MaterialPageRoute(builder: (context) => DeckBuilder(deck: Deck.empty()))),
           ),
           IconButton(
             icon: Icon(Icons.settings),
@@ -93,7 +93,7 @@ class DeckTile extends StatelessWidget {
       child: ListTile(
         onTap: () {
           Navigator.push(context, MaterialPageRoute(
-            builder: (context) => DeckView(deck: deck)
+            builder: (context) => DeckBuilder(deck: deck)
           ));
         },
         title: Text(deck.deckName),
