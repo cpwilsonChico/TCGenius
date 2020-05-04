@@ -89,11 +89,12 @@ class CardListItem extends StatelessWidget {
 //      child: Text(card.getName()),
 //    );
     return Card(
+        color: Color.fromARGB(0xFF, 0x54, 0x54, 0x54),
         child: ExpansionTile(
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text(card.getName()),
+              Text(card.getName(), style: TextStyle(color: card.getRarityColor())),
               Text(card.getManaString()),
             ]
           ),

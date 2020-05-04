@@ -37,6 +37,7 @@ class Data{
       cardInfo["set_name"] = map['set_name'];
       cardInfo["type_line"] = map['type_line'];
       cardInfo["image_uris"] = map["image_uris"]["normal"];
+      cardInfo["rarity"] = map['rarity'];
       cards.add(MTGCard.fromMap(cardInfo));
     }
 
@@ -69,11 +70,14 @@ class Data{
       if (data.containsKey("status")) {
         return null;
       }
+      Map<String, dynamic> images = data["image_uris"];
       cardInfo["name"] = data['name'];
       cardInfo["mana_cost"] = data['mana_cost'];
       cardInfo["oracle_text"] = data['oracle_text'];
       cardInfo["set_name"] = data['set_name'];
       cardInfo["type_line"] = data['type_line'];
+      cardInfo["image_uris"] = images["normal"];
+      cardInfo["rarity"] = data["rarity"];
     } catch (e) {
       print("json error: ${e.toString()}");
       return null;
