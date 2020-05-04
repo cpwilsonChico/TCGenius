@@ -37,7 +37,7 @@ class DeckBuilderState extends State<DeckBuilder> {
     return WillPopScope(
       onWillPop: () async { return await confirmDiscard(context);},
       child: Scaffold(
-          drawer: NavDrawer(),
+          //drawer: NavDrawer(),
           resizeToAvoidBottomPadding: false,
           appBar: AppBar(
               title: Text("$titleText"),

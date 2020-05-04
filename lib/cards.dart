@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
+
+enum Rarity {COMMON, UNCOMMON, RARE, MYTHIC, TIMESHIFTED}
 
 // holds data associated with a Magic the Gathering card
 class MTGCard {
@@ -10,6 +13,9 @@ class MTGCard {
   String _set;      // which set this card comes from
   String _manaString;
   String _image_uris;
+  Rarity _rarity;
+
+
   int qty = 1;
   MTGManaType _manaCost;
   int _dollarCost;
@@ -32,6 +38,9 @@ class MTGCard {
       }
       if (info.containsKey("image_uris")) {
         _image_uris = info["image_uris"];
+      }
+      if (info.containsKey("rarity")) {
+        decideRarity(info["rarity"]);
       }
     } catch (e) {
       print("Error when creating MTGCard from map: ${e.toString()}");
@@ -57,6 +66,45 @@ class MTGCard {
       //'subtype': _subtype,
       'qty': qty,
     };
+  }
+
+  void decideRarity(String text) {
+    switch (text) {
+      case "common":
+        _rarity = Rarity.COMMON;
+        break;
+      case "uncommon":
+        _rarity = Rarity.UNCOMMON;
+        break;
+      case "rare":
+        _rarity = Rarity.RARE;
+        break;
+      case "mythic":
+        _rarity = Rarity.MYTHIC;
+        break;
+      case "timeshifted":
+        _rarity = Rarity.TIMESHIFTED;
+        break;
+      default:
+        _rarity = Rarity.COMMON;
+    }
+  }
+
+  Color getRarityColor() {
+    switch (_rarity) {
+      case Rarity.COMMON:
+        return Colors.black;
+      case Rarity.UNCOMMON:
+        return Color.fromARGB(0xFF, 0xC0, 0xC0, 0xC0);
+      case Rarity.RARE:
+        return Color.fromARGB(0xFF, 0xD4, 0xAF, 0x37);
+      case Rarity.MYTHIC:
+        return Colors.red;
+      case Rarity.TIMESHIFTED:
+        return Colors.blue;
+      default:
+        return Colors.black;
+    }
   }
 
   int getQty() {
@@ -160,8 +208,9 @@ class Deck {
     format = other.format;
     _cards = new List<MTGCard>();
     _nameToIndex = new Map<String, int>();
-    for (MTGCard card in other.list) {
-      _cards.add(MTGCard.copy(card));
+    for (int i = 0; i < other.list.length; i++) {
+      _cards.add(MTGCard.copy(other.list[i]));
+      _nameToIndex[other.list[i].getName()] = i;
     }
   }
 
