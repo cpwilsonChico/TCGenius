@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
         initialRoute: "/",
         routes: {
           "/": (context) => AuthPage(),
+          "/home": (context) => HomePage("TCGenius"),
           //"/": (context) => HomePage("TCGenius"),
           "/decks": (context) => DeckPage(),
         },
@@ -46,7 +47,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomPadding: true,
+      resizeToAvoidBottomPadding: false,
       drawer: NavDrawer(),
       appBar: AppBar(
         title: Text("TCGenius"),
