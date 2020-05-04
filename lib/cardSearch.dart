@@ -17,7 +17,12 @@ class SearchState extends State<CardSearch> {
   @override
   void initState() {
     super.initState();
+    futureCards = initialFuture();
     //futureCards = data.getCardsByName("Cat");
+  }
+
+  Future<List<MTGCard>> initialFuture() async {
+    return new List<MTGCard>();
   }
 
   void searchCallback(String name, String superType, String subType) {
@@ -30,8 +35,8 @@ class SearchState extends State<CardSearch> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget> [
-        CardListDisplay(futureCards),
         CardSearchBar(searchCallback),
+        CardListDisplay(futureCards),
       ]
     );
   }
@@ -84,76 +89,76 @@ class CardListItem extends StatelessWidget {
 //      child: Text(card.getName()),
 //    );
     return Card(
-        child: ListTile(
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
+        child: ExpansionTile(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
               Text(card.getName()),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment:  MainAxisAlignment.end,
-                  children: <Widget>[
-                    Text(card.getManaString()),
-                  ],
-                ),
-              ],
-            ),
+              Text(card.getManaString()),
+            ]
+          ),
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.fromLTRB(8.0, 0, 8.0, 12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  ButtonBar(
+                    children: <Widget>[
+                      FlatButton(
+                        onPressed: (){
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context){
+                              return AlertDialog(
+                                content: Row(
+                                  children: <Widget>[
+                                    SizedBox(
+                                      width: 230,
+                                      height: 350,
+                                      child: Image.network(card.getImage()) ?? Text("Image Not Available"),
+                                    ),
+                                    //Image.network(card.getImage()) ?? Text("Image Not Available"),
+                                    //                           Text("Poop"),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        child: Text(
+                          "Card Image",
+                          style: TextStyle(color: Colors.lightBlue),
+                        ),
+                      )
 
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                ButtonBar(
-                  children: <Widget>[
-                    FlatButton(
-                      onPressed: (){
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context){
-                            return AlertDialog(
-                              content: Row(
-                                children: <Widget>[
-                                  SizedBox(
-                                    width: 250,
-                                    height: 350,
-                                    child: Image.network(card.getImage()) ?? Text("Image Not Available"),
-                                  ),
-                                  //Image.network(card.getImage()) ?? Text("Image Not Available"),
-      //                           Text("Poop"),
-                                ],
-                              ),
-                            );
-                          },
-                        );
-                      },
-                      child: Text(
-                        "Card Image"
+                    ],
+                  ),
+                  Text(
+                      card.getSuperType() ?? 'Something went wrong try again later'
+                  ),
+                  SizedBox(height:12),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment:  MainAxisAlignment.end,
+                    children: <Widget>[
+                      Text(
+                          card.getSet() ?? 'Something went wrong try again later',
+                          style: TextStyle(color: Colors.orange),
                       ),
-                    )
+                    ],
+                  ),
+                  SizedBox(height:12),
+                  Text(
+                      card.getOracleText() ?? 'Something went wrong try again later'
+                  ),
 
-                  ],
-                ),
-                Text(
-                  card.getSuperType() ?? 'Something went wrong try again later'
-                ),
-                //Text(' '),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment:  MainAxisAlignment.end,
-                  children: <Widget>[
-                    Text(
-                      card.getSet() ?? 'Something went wrong try again later'
-                    ),
-                  ],
-                ),
-                Text(
-                    card.getOracleText() ?? 'Something went wrong try again later'
-                ),
-
-              ],
-              //card.getOracleText() ?? 'Something went wrong try again later'
-          )
+                ],
+                //card.getOracleText() ?? 'Something went wrong try again later'
+              )
+            ),
+          ]
         )
     );
   }
@@ -189,6 +194,7 @@ class CardSearchBarState extends State<CardSearchBar> {
       //margin: EdgeInsets.all(8.0),
       child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget> [
             Row(
               mainAxisSize: MainAxisSize.min,
