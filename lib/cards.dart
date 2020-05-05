@@ -14,6 +14,7 @@ class MTGCard {
   String _manaString;
   String _image_uris;
   Rarity _rarity;
+  double _price;
 
 
   int qty = 1;
@@ -41,6 +42,9 @@ class MTGCard {
       }
       if (info.containsKey("rarity")) {
         decideRarity(info["rarity"]);
+      }
+      if (info.containsKey("prices")) {
+        _price = double.tryParse(info["prices"]["usd"]);
       }
     } catch (e) {
       print("Error when creating MTGCard from map: ${e.toString()}");
@@ -105,6 +109,10 @@ class MTGCard {
       default:
         return Colors.black;
     }
+  }
+
+  double getPrice() {
+    return _price;
   }
 
   int getQty() {
