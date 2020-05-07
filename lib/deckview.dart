@@ -3,13 +3,17 @@ import 'cards.dart';
 import 'nav.dart';
 import 'scry.dart';
 import 'storage.dart';
+import 'cameraPage.dart';
+import 'package:camera/camera.dart';
+import 'cameraProvider.dart';
 
 // widget for viewing / editing a deck
 class DeckBuilder extends StatefulWidget {
   final Deck deck;
   final bool isNew;
   final Function refreshParent;    // callback to refresh view of deck list
-  DeckBuilder({this.deck, this.isNew, this.refreshParent});
+  final CameraDescription camera;
+  DeckBuilder({this.deck, this.isNew, this.refreshParent, this.camera});
   State<DeckBuilder> createState() => DeckBuilderState(deck: deck, isNew: isNew, refreshParent: refreshParent);
 }
 
@@ -56,7 +60,7 @@ class DeckBuilderState extends State<DeckBuilder> {
               shrinkWrap: true,
               children: <Widget>[
                 DeckInfoWidget(setDeckName, isNew, deckName: deck.deckName),
-                CardInput(setNewQty, setName, addCard),
+                CardInput(setNewQty, setName, addCard, scanCard),
                 DeckView(deck, deleteCard, triggerState),
               ]
           )
@@ -192,6 +196,19 @@ class DeckBuilderState extends State<DeckBuilder> {
   }
 
   // callback, passed to CardInput
+  Future<void> scanCard(BuildContext context) async {
+    newCardName = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CameraPage(
+        InheritedCameraProvider.of(context).camera,
+      ))
+    );
+    if (newCardName != null) {
+      addCard();
+    }
+  }
+
+  // callback, passed to CardInput
   Future<void> addCard() async {
     if (newCardName == null) return;
     Data api = Data();
@@ -303,8 +320,9 @@ class CardInput extends StatelessWidget {
   final Function setQty;  // callback for qty input
   final Function setName; // callback for name input
   final Function addCard; // callback for adding new card to deck
+  final Function scanCard;// callback for scanning a card with camera
 
-  CardInput(this.setQty, this.setName, this.addCard);
+  CardInput(this.setQty, this.setName, this.addCard, this.scanCard);
 
   @override
   Widget build(BuildContext context) {
@@ -322,9 +340,10 @@ class CardInput extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
+
           // quantity input field
           SizedBox(
-            width: 80,
+            width: 60,
             child: TextFormField(
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
@@ -341,7 +360,7 @@ class CardInput extends StatelessWidget {
 
           // card name input field
           SizedBox(
-            width: 180,
+            width: 150,
             child: TextField(
                 decoration: InputDecoration(
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
@@ -353,6 +372,7 @@ class CardInput extends StatelessWidget {
             ),
           ),
 
+          // "Plus" icon to add a new card
           Material(
             color: Color.fromARGB(255, 30, 30, 30),
             child: Center(
@@ -367,6 +387,23 @@ class CardInput extends StatelessWidget {
                   )
               ),
             ),
+          ),
+
+          // "Camera" icon to scan a real MTG card
+          Material(
+            color: Color.fromARGB(255, 30, 30, 30),
+            child: Center(
+              child: Ink(
+                decoration: ShapeDecoration(
+                  shape: CircleBorder(),
+                  color: Colors.lightBlue,
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.camera_alt),
+                  onPressed: () => scanCard(context),
+                )
+              )
+            )
           )
 
         ]

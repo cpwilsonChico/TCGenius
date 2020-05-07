@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:camera/camera.dart';
 import 'nav.dart';
 import 'cards.dart';
 import 'deckview.dart';
 import 'storage.dart';
 
 class DeckPage extends StatefulWidget {
-
   State<DeckPage> createState() => DeckPageState();
 }
 
