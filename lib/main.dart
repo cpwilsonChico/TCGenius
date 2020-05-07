@@ -6,15 +6,29 @@ import 'package:provider/provider.dart';
 import 'cardSearch.dart';
 import 'authPage.dart';
 import 'auth.dart';
+import 'cameraProvider.dart';
+import 'cameraPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:camera/camera.dart';
 //import 'dart:async';
 //import 'dart:convert';
 //import 'package:http/http.dart' as http;
 
-void main() => runApp(MyApp());
+void main() async {
+  // setup camera
+  WidgetsFlutterBinding.ensureInitialized();
+  final List<CameraDescription> cameras = await availableCameras();
+  final CameraDescription firstCam = cameras.first;
+
+  runApp(
+    InheritedCameraProvider(
+      child: MyApp(),
+      camera: firstCam,
+    )
+  );
+}
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return StreamProvider<FirebaseUser>.value(
@@ -25,6 +39,7 @@ class MyApp extends StatelessWidget {
         routes: {
           "/": (context) => AuthPage(),
           "/home": (context) => HomePage("TCGenius"),
+          //"/camera": (context) => CameraPage(InheritedCameraProvider.of(context).camera),
           //"/": (context) => HomePage("TCGenius"),
           "/decks": (context) => DeckPage(),
         },

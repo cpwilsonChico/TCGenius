@@ -33,6 +33,7 @@ class Authenticator {
     return authres.user;
   }
 
+
   Future<String> getUID() async {
     return (await _auth.currentUser()).uid;
   }
