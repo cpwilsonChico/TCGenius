@@ -19,7 +19,6 @@ class FirebaseDB {
   }
 
   Future<List<Deck>> getDecks() async {
-    print("getting decks");
     if (_uid == null) return List<Deck>(); // return empty deck
     CollectionReference colref = Firestore.instance.collection("users").document(_uid).collection("decks");
     List<DocumentSnapshot> docs = (await colref.getDocuments()).documents;
@@ -28,29 +27,12 @@ class FirebaseDB {
       decks.add(Deck.fromMap(doc.data));
     }
     return decks;
-/*
-
-    Map<String, dynamic> data = (await colref.document(_uid).get()).data;
-    if (data == null) return List<Deck>();
-
-    List<Deck> deckList = new List<Deck>();
-    for (var deckInfo in data["decks"]) {
-      List<MTGCard> cardList = new List<MTGCard>();
-
-      for (var cardInfo in deckInfo["cards"]) {
-        MTGCard curCard = MTGCard.fromMap(cardInfo);
-        cardList.add(curCard);
-      }
-      deckList.add(Deck(deckInfo["name"], cardList, format: deckInfo["format"]));
-    }
-    return deckList;*/
   }
 
   // return error message if an error occurred, or "" if successful
   Future<String> saveDeck(Deck deck) async {
     if (_uid == null) return "Authorization failed. Failed to save deck.";
     DocumentReference docref = Firestore.instance.collection("users").document(_uid).collection("decks").document(deck.deckName);
-    print("SAVE DECK: $docref");
     await docref.setData(deck.toMap());
     return "";
   }

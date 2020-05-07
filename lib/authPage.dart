@@ -31,6 +31,7 @@ class _AuthPageState extends State<AuthPage> {
                 }
               }
             ),
+            SizedBox(height: 20),
             RaisedButton(
               child: Text("Sign in using Google"),
               onPressed: () async {
