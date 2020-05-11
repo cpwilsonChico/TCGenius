@@ -113,17 +113,28 @@ class CardListItem extends StatelessWidget {
                             context: context,
                             builder: (BuildContext context){
                               return AlertDialog(
-                                content: Row(
-                                  children: <Widget>[
-                                    SizedBox(
-                                      width: 230,
-                                      height: 350,
-                                      child: Image.network(card.getImage()) ?? Text("Image Not Available"),
-                                    ),
-                                    //Image.network(card.getImage()) ?? Text("Image Not Available"),
-                                    //                           Text("Poop"),
-                                  ],
-                                ),
+                                content: Container(
+                                  margin: EdgeInsets.all(0),
+                                  padding: EdgeInsets.all(0),
+                                  child: Column(
+                                    //mainAxisAlignment: MainAxisAlignment.end,
+                                    children: <Widget>[
+                                      SizedBox(
+                                        width: 230,
+                                        height: 350,
+                                        child: Image.network(card.getImage()) ?? Text("Image Not Available"),
+                                      ),
+                                      Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: <Widget>[
+                                            Text(card.getPrice().toString()),
+                                          ]
+                                      )
+                                      //Image.network(card.getImage()) ?? Text("Image Not Available"),
+                                    ],
+                                  ),
+                                )
                               );
                             },
                           );

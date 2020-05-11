@@ -106,6 +106,7 @@ class DeckTile extends StatelessWidget {
         },
         title: Text(deck.deckName),
         subtitle: Text("${deck.getDeckSize()}"),
+        trailing: Text("\$${deck.getTotalPrice().toStringAsFixed(2)}")
       ),
     );
   }

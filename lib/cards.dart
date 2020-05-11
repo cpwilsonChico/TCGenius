@@ -27,6 +27,7 @@ class MTGCard {
   }
 
   MTGCard.fromMap(var info) {
+    print(info);
     try {
       _name = info["name"];
       _textBox = info["oracle_text"];
@@ -43,8 +44,8 @@ class MTGCard {
       if (info.containsKey("rarity")) {
         decideRarity(info["rarity"]);
       }
-      if (info.containsKey("prices")) {
-        _price = double.tryParse(info["prices"]["usd"]);
+      if (info.containsKey("price")) {
+        _price = info["price"];
       }
     } catch (e) {
       print("Error when creating MTGCard from map: ${e.toString()}");
@@ -58,6 +59,7 @@ class MTGCard {
     _manaString = other._manaString;
     _supertype = other._supertype;
     qty = other.qty;
+    _price = other.getPrice();
   }
 
   Map<String, dynamic> toMap() {
@@ -69,6 +71,7 @@ class MTGCard {
       'type_line': _supertype,
       //'subtype': _subtype,
       'qty': qty,
+      'price': _price,
     };
   }
 
@@ -274,6 +277,16 @@ class Deck {
   void clear() {
     _cards.clear();
     _nameToIndex.clear();
+  }
+
+  double getTotalPrice() {
+    double sum = 0;
+    for (MTGCard card in _cards) {
+      print("price: ${card.getPrice()}");
+      print("qty: ${card.getQty()}");
+      sum += card.getPrice() * card.getQty();
+    }
+    return sum;
   }
 
   Map<String, List<MTGCard>> getAllCardsBySuperType() {
