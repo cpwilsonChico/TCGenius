@@ -104,9 +104,10 @@ class DeckTile extends StatelessWidget {
             builder: (context) => DeckBuilder(deck: Deck.copy(deck), isNew: false, refreshParent: refresh)
           ));
         },
+        leading: Text("${deck.getDeckSize()}"),
         title: Text(deck.deckName),
-        subtitle: Text("${deck.getDeckSize()}"),
-        trailing: Text("\$${deck.getTotalPrice().toStringAsFixed(2)}")
+        subtitle: Text(deck.getFormat()),
+        trailing: Text("\$${deck.getTotalPrice().toStringAsFixed(2)}"),
       ),
     );
   }

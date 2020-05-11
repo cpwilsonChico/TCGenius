@@ -27,7 +27,6 @@ class MTGCard {
   }
 
   MTGCard.fromMap(var info) {
-    print(info);
     try {
       _name = info["name"];
       _textBox = info["oracle_text"];
@@ -177,10 +176,10 @@ class Deck {
   Map<String, int> _nameToIndex;
 
 
-  Deck(this.deckName, this._cards, {this.deckSizeLimit, this.format}) {
+  Deck(this.deckName, this._cards, {this.deckSizeLimit, this.format="Standard"}) {
     _nameToIndex = new Map<String, int>();
   }
-  Deck.empty({this.deckSizeLimit, this.format}) {
+  Deck.empty({this.deckSizeLimit, this.format="Standard"}) {
     _cards = new List<MTGCard>();
     _nameToIndex = new Map<String, int>();
   }
@@ -228,6 +227,18 @@ class Deck {
 
   List<MTGCard> get list {
     return _cards;
+  }
+
+  void setFormat(String str) {
+    format = str;
+  }
+
+  String getFormat() {
+    return format;
+  }
+
+  static List<String> getAllFormats() {
+    return <String>["Standard", "Pioneer", "Modern", "EDH/Commander"];
   }
 
   int getDeckSize() {
@@ -282,8 +293,6 @@ class Deck {
   double getTotalPrice() {
     double sum = 0;
     for (MTGCard card in _cards) {
-      print("price: ${card.getPrice()}");
-      print("qty: ${card.getQty()}");
       sum += card.getPrice() * card.getQty();
     }
     return sum;

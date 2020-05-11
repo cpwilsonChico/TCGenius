@@ -60,6 +60,7 @@ class DeckBuilderState extends State<DeckBuilder> {
               shrinkWrap: true,
               children: <Widget>[
                 DeckInfoWidget(setDeckName, isNew, deckName: deck.deckName, deckPrice: "\$" + deck.getTotalPrice().toStringAsFixed(2)),
+                FormatSelector(setFormat, deck),
                 CardInput(setNewQty, setName, addCard, scanCard),
                 DeckView(deck, deleteCard, triggerState),
               ]
@@ -96,7 +97,6 @@ class DeckBuilderState extends State<DeckBuilder> {
         }
     );
   }
-
 
   void saveDeck(BuildContext context) async {
     if (deck.deckName == null ? true : deck.deckName.length < 1) {
@@ -169,6 +169,13 @@ class DeckBuilderState extends State<DeckBuilder> {
         );
       }
     );
+  }
+
+  // callback, passed to FormatSelector
+  void setFormat(String str) {
+    deck.setFormat(str);
+    dirty = true;
+    setState((){});
   }
 
   // callback, passed to CardInput
@@ -291,6 +298,49 @@ class SaveIcon extends StatelessWidget {
     );
   }
 }
+
+class FormatSelector extends StatelessWidget {
+  final Function setFormat;
+  final Deck deck;
+  FormatSelector(this.setFormat, this.deck);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.all(4.0),
+      padding: EdgeInsets.fromLTRB(10.0, 2.0, 10.0, 2.0),
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+        border: Border.all(width: 1),
+        borderRadius: BorderRadius.circular(12.0),
+        color: Color.fromARGB(255, 30, 30, 30),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text("Format:"),
+          DropdownButton<String>(
+            value: deck.getFormat(),
+            elevation: 16,
+            underline: SizedBox(height: 0),
+            icon: Icon(Icons.arrow_downward),
+            items: Deck.getAllFormats().map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+            onChanged: (String val) {
+              setFormat(val);
+            },
+          ),
+        ]
+      ),
+    );
+  }
+}
+
 
 // shows the deck, split into categories
 class DeckView extends StatelessWidget {
