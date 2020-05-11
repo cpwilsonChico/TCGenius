@@ -59,7 +59,7 @@ class DeckBuilderState extends State<DeckBuilder> {
             //mainAxisSize: MainAxisSize.min,
               shrinkWrap: true,
               children: <Widget>[
-                DeckInfoWidget(setDeckName, isNew, deckName: deck.deckName),
+                DeckInfoWidget(setDeckName, isNew, deckName: deck.deckName, deckPrice: "\$" + deck.getTotalPrice().toStringAsFixed(2)),
                 CardInput(setNewQty, setName, addCard, scanCard),
                 DeckView(deck, deleteCard, triggerState),
               ]
@@ -505,7 +505,8 @@ class DeckInfoWidget extends StatelessWidget {
   final Function setDeckName;    // callback to set deck name from text input
   final bool isNew;
   final String deckName;
-  DeckInfoWidget(this.setDeckName, this.isNew, {this.deckName});
+  final String deckPrice;
+  DeckInfoWidget(this.setDeckName, this.isNew, {this.deckName, this.deckPrice});
 
   @override
   Widget build(BuildContext context) {
@@ -543,7 +544,7 @@ class DeckInfoWidget extends StatelessWidget {
             ),
           ),
 
-          Text("\$45.99"),
+          Text(deckPrice),
         ]
       )
     );

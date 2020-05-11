@@ -30,7 +30,7 @@ class Data{
     var data = json.decode(responce.body)['data'];
     List<MTGCard> cards = [];
     for (var map in data) {
-      Map<String, String> cardInfo = {};
+      Map<String, dynamic> cardInfo = {};
       cardInfo["name"] = map['name'];
       cardInfo["mana_cost"] = map['mana_cost'];
       cardInfo["oracle_text"] = map['oracle_text'];
@@ -38,6 +38,12 @@ class Data{
       cardInfo["type_line"] = map['type_line'];
       cardInfo["image_uris"] = map["image_uris"]["normal"];
       cardInfo["rarity"] = map['rarity'];
+      Map<String, dynamic> priceMap = map['prices'];
+      String priceString = priceMap["usd"];
+      if (priceString == null) priceString = "30000";
+      priceString = priceString.replaceAll(",", "");
+      print("price String: $priceString");
+      cardInfo["price"] = double.tryParse(priceString);
       cards.add(MTGCard.fromMap(cardInfo));
     }
 
@@ -64,7 +70,7 @@ class Data{
     }
 
     var data;
-    Map<String, String> cardInfo = {};
+    Map<String, dynamic> cardInfo = {};
     try {
       data = json.decode(responce.body);
       if (data.containsKey("status")) {
@@ -78,6 +84,11 @@ class Data{
       cardInfo["type_line"] = data['type_line'];
       cardInfo["image_uris"] = images["normal"];
       cardInfo["rarity"] = data["rarity"];
+      Map<String, dynamic> priceMap = data['prices'];
+      String priceString = priceMap["usd"];
+      if (priceString == null) priceString = "30000";
+      priceString = priceString.replaceAll(",", "");
+      cardInfo["price"] = double.tryParse(priceString);
     } catch (e) {
       print("json error: ${e.toString()}");
       return null;
