@@ -114,8 +114,8 @@ class CardListItem extends StatelessWidget {
                             builder: (BuildContext context){
                               return AlertDialog(
                                 content: Container(
-                                  margin: EdgeInsets.all(0),
-                                  padding: EdgeInsets.all(0),
+                                  //margin: EdgeInsets.all(0),
+                                  //padding: EdgeInsets.all(0),
                                   child: Column(
                                     //mainAxisAlignment: MainAxisAlignment.end,
                                     children: <Widget>[
@@ -124,12 +124,8 @@ class CardListItem extends StatelessWidget {
                                         height: 350,
                                         child: Image.network(card.getImage()) ?? Text("Image Not Available"),
                                       ),
-                                      Row(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          crossAxisAlignment: CrossAxisAlignment.end,
-                                          children: <Widget>[
-                                            Text(card.getPrice().toString()),
-                                          ]
+                                      Center(
+                                          child: Text("\$${card.getPrice().toStringAsFixed(2)}"),
                                       )
                                       //Image.network(card.getImage()) ?? Text("Image Not Available"),
                                     ],
