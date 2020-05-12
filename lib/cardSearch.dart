@@ -118,6 +118,7 @@ class CardListItem extends StatelessWidget {
                                   //padding: EdgeInsets.all(0),
                                   child: Column(
                                     //mainAxisAlignment: MainAxisAlignment.end,
+                                    mainAxisSize: MainAxisSize.min,
                                     children: <Widget>[
                                       SizedBox(
                                         width: 230,
@@ -130,13 +131,17 @@ class CardListItem extends StatelessWidget {
                                       //Image.network(card.getImage()) ?? Text("Image Not Available"),
                                     ],
                                   ),
-                                )
+                                ),
+                                actions: <Widget>[FlatButton(
+                                  child: Text("OK"),
+                                  onPressed: () => Navigator.pop(context),
+                                )]
                               );
                             },
                           );
                         },
                         child: Text(
-                          "Card Image",
+                          "Details",
                           style: TextStyle(color: Colors.lightBlue),
                         ),
                       )
