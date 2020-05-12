@@ -42,7 +42,6 @@ class Data{
       String priceString = priceMap["usd"];
       if (priceString == null) priceString = "30000";
       priceString = priceString.replaceAll(",", "");
-      print("price String: $priceString");
       cardInfo["price"] = double.tryParse(priceString);
       cards.add(MTGCard.fromMap(cardInfo));
     }
