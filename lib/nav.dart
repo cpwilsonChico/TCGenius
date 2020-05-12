@@ -34,7 +34,7 @@ class NavDrawer extends StatelessWidget {
               color: TCG_BLUE,
             )
           ),
-          NavShelf("Home", Icon(Icons.home), "/home"),
+          NavShelf("Search", Icon(Icons.search), "/home"),
           NavShelf("Decks", Icon(Icons.cloud), "/decks"),
           /*ListTile(
             title: Text("Decks"),
